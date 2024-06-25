@@ -1,0 +1,19 @@
+** Models **
+------------
+
+=> Enum
+--------
+Role (reader, admin)
+AccountStatus(active, pending, suspended)
+Status (active, hidden)
+CommentStatus (pending, approved)
+
+=> Entities
+User (id, name, email, password, role: Role, accountStatus: AccountStatus)
+Author(id, date_added, userId, )
+CategoryRequest(id, date_added, name, authorId)
+FavoriteAuthor(id, date_added, userId, authorId)
+Category (id, name, status: Status)
+Post (id, date_added, title, description, banner, status: Status, authorId, categoryId, published[true, false])
+ReportedPost(id, date_added, postId, userId)
+Comment (id, message, postId, status: CommentStatus, userId)
