@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Post, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Post, Query, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { MessageOnlyInterceptor } from 'src/shared/interceptors/message-only.interceptor';
@@ -12,6 +12,8 @@ import { swaggerRegisterBadRequest, swaggerRegisterSuccess } from './swagger/reg
 import { swaggerLoginBadRequest, swaggerLoginSuccess } from './swagger/login.swagger';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { swaggerForgotPasswordBadRequest, swaggerForgotPasswordSuccess } from './swagger/forgot-password.swagger';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { swaggerResetPasswordSuccess } from './swagger/reset-password.swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -54,5 +56,20 @@ export class AuthController {
     async forgotPassword(@Body(ValidationPipe) body: ForgotPasswordDto) {
         await this.authService.requestPasswordChange(body.email);
         return "Check your email to complete your password reset process";
+    }
+
+    @UseInterceptors(MessageOnlyInterceptor)
+    @Post("reset-password")
+    @ApiTags("Auth")
+    @ApiResponse(swaggerResetPasswordSuccess)
+    @ApiResponse(swaggerForgotPasswordBadRequest)
+    @ApiResponse(swaggerInternalError)
+    async resetPassword(@Body(ValidationPipe) body: ResetPasswordDto, @Query("token") token: string) {
+        if (body.password !== body.confirmPassword) {
+            throw new BadRequestException("Passwords do not match each other");
+        }
+
+        await this.authService.resetPassword(token, body.password);
+        return "Password changed, move to the login page to login";
     }
 }

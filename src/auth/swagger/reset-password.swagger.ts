@@ -1,11 +1,11 @@
-export const swaggerForgotPasswordSuccess = {
+export const swaggerResetPasswordSuccess = {
     description: "OK",
     content: {
         "application/json": {
             schema: {
                 type: "object",
                 example: {
-                    message: "Check your email to complete your password reset process"
+                    message: "Password changed, move to the login page to login"
                 }
             }
         }
@@ -13,14 +13,14 @@ export const swaggerForgotPasswordSuccess = {
     status: 200, 
 }
 
-export const swaggerForgotPasswordBadRequest = {
+export const swaggerResetPasswordBadRequest = {
     description: "Validation Error",
     content: {
         "application/json": {
             schema: {
                 type: "object",
                 example: {
-                    message: "No account found with such email",
+                    message: "Passwords do not match each other",
                     error: "Bad Request",
                     statusCode: 400
                 }
