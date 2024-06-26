@@ -1,4 +1,12 @@
 import { Module } from '@nestjs/common';
+import { RegisterAccountService } from './service/register-account.service';
 
-@Module({})
+@Module({
+    providers: [
+        RegisterAccountService,
+    ],
+    exports: [
+        RegisterAccountService
+    ]
+})
 export class MailerModule {}
