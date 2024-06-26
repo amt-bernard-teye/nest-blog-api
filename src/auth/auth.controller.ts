@@ -11,6 +11,7 @@ import { swaggerInternalError } from 'src/shared/swagger/internal-error.swagger'
 import { swaggerRegisterBadRequest, swaggerRegisterSuccess } from './swagger/register.swagger';
 import { swaggerLoginBadRequest, swaggerLoginSuccess } from './swagger/login.swagger';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { swaggerForgotPasswordBadRequest, swaggerForgotPasswordSuccess } from './swagger/forgot-password.swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -46,6 +47,10 @@ export class AuthController {
 
     @Post("forgot-password")
     @UseInterceptors(MessageOnlyInterceptor)
+    @ApiTags("Auth")
+    @ApiResponse(swaggerForgotPasswordSuccess)
+    @ApiResponse(swaggerForgotPasswordBadRequest)
+    @ApiResponse(swaggerInternalError)
     async forgotPassword(@Body(ValidationPipe) body: ForgotPasswordDto) {
         await this.authService.requestPasswordChange(body.email);
         return "Check your email to complete your password reset process";
