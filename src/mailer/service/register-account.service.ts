@@ -3,18 +3,17 @@ import { join } from "path";
 import { Injectable } from "@nestjs/common";
 
 import { BaseMailer } from "./base-mailer.service";
-import { AccountRegistratrion } from "../interface/account-registration.interface";
+import { AccountRegistration } from "../interface/account-registration.interface";
 
 @Injectable()
-export class RegisterAccountService extends BaseMailer<AccountRegistratrion> {
-    protected getHtmlContent(content: AccountRegistratrion): Promise<string> {
-        console.log(__dirname);
+export class RegisterAccountService extends BaseMailer<AccountRegistration> {
+    protected getHtmlContent(content: AccountRegistration): Promise<string> {
         return renderFile(
             join(__dirname, "../", "../", "../", "views", "register-account.ejs"), content
         );
     }
 
-    async sendMail(content: AccountRegistratrion): Promise<void> {
+    async sendMail(content: AccountRegistration): Promise<void> {
         let htmlContent = await this.getHtmlContent(content);
         let transporter = this.createTransporter();
         let subject = "Verify email"

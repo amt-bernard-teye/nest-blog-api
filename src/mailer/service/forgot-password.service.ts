@@ -3,18 +3,18 @@ import * as ejs from "ejs";
 import { join } from "path";
 
 import { BaseMailer } from "./base-mailer.service";
-import { AccountRegistratrion } from "../interface/account-registration.interface";
+import { AccountRegistration } from "../interface/account-registration.interface";
 
 @Injectable()
-export class ForgotPasswordService extends BaseMailer<AccountRegistratrion> {
-    protected getHtmlContent(content: AccountRegistratrion): Promise<string> {
+export class ForgotPasswordService extends BaseMailer<AccountRegistration> {
+    protected getHtmlContent(content: AccountRegistration): Promise<string> {
         return ejs.renderFile(
             join(__dirname, "../", "../", "../", "views", "forgot-password.ejs"),
             content 
         );
     }
 
-    async sendMail(content: AccountRegistratrion): Promise<void> {
+    async sendMail(content: AccountRegistration): Promise<void> {
         let htmlContent = await this.getHtmlContent(content) 
         let transporter = this.createTransporter();
         let subject = "Forgot password";
