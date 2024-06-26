@@ -10,6 +10,7 @@ import { ResponseMessage } from 'src/shared/decorators/response-message.decorato
 import { swaggerInternalError } from 'src/shared/swagger/internal-error.swagger';
 import { swaggerRegisterBadRequest, swaggerRegisterSuccess } from './swagger/register.swagger';
 import { swaggerLoginBadRequest, swaggerLoginSuccess } from './swagger/login.swagger';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -41,5 +42,12 @@ export class AuthController {
     @ApiTags("Auth")
     async login(@Body(ValidationPipe) body: LoginDto) {
         return await this.authService.login(body.email, body.password);
+    }
+
+    @Post("forgot-password")
+    @UseInterceptors(MessageOnlyInterceptor)
+    async forgotPassword(@Body(ValidationPipe) body: ForgotPasswordDto) {
+        await this.authService.requestPasswordChange(body.email);
+        return "Check your email to complete your password reset process";
     }
 }
