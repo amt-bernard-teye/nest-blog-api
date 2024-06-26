@@ -43,9 +43,7 @@ export class AuthService {
     }
 
     private async registerUser(userToRegister: RegisteringUser) {
-        const salt = await bcryptjs.genSalt(10);
-        const hashedPassword = await bcryptjs.hash(userToRegister.password, salt);
-
+        const hashedPassword = await this.generateHashedPassword(userToRegister.password);
         return await this.userRepo.add({
             role: Role.READER,
             name: userToRegister.name,
@@ -53,6 +51,10 @@ export class AuthService {
             accountStatus: AccountStatus.PENDING,
             password: hashedPassword
         });
+    }
+    private async generateHashedPassword(password: string) {
+        const salt = await bcryptjs.genSalt(10);
+        return await bcryptjs.hash(password, salt);
     }
 
     private createVerificationToken(id: string, email: string) {
@@ -124,6 +126,22 @@ export class AuthService {
                 name: existingUser.name,
                 token
             });
+        }
+        catch(error) {
+            throw new InternalServerErrorException("Something went wrong");
+        }
+    }
+
+    async resetPassword(token: string, password: string) {
+        try {
+            const secretKey = this.configService.get("SECRET_KEY");
+            const result = <{sub: string, exp: number, iat: number}>this.jwtService.verify(token, {secret: secretKey});
+
+            const hashedPassword = await this.generateHashedPassword(password);
+            const existingUser = await this.userRepo.find(result.sub);
+            existingUser.password = hashedPassword;
+
+            await this.userRepo.update(existingUser);
         }
         catch(error) {
             throw new InternalServerErrorException("Something went wrong");
