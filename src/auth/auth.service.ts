@@ -8,6 +8,7 @@ import { RegisterAccountService } from 'src/mailer/service/register-account.serv
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { User } from 'src/shared/interface/user.interface';
+import { ForgotPasswordService } from 'src/mailer/service/forgot-password.service';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,8 @@ export class AuthService {
         private userRepo: UserRepository,
         private registerAccService: RegisterAccountService,
         private configService: ConfigService,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private forgotPasswordService: ForgotPasswordService
     ) { }
 
     async register(userToRegister: RegisteringUser) {
@@ -101,5 +103,30 @@ export class AuthService {
         }, {expiresIn: refreshTokenDuration, secret: secretKey});
 
         return {accessToken, refreshToken};
+    }
+
+    async requestPasswordChange(email: string) {
+        const existingUser = await this.userRepo.find(email);
+
+        if (!existingUser) {
+            throw new BadRequestException("No account found with such email");
+        }
+
+        try {
+            const tokenDuration = "3h";
+            const secretKey = this.configService.get("SECRET_KEY");
+            const token = this.jwtService.sign({
+                sub: existingUser.id,
+            }, {expiresIn: tokenDuration, secret: secretKey});
+
+            await this.forgotPasswordService.sendMail({
+                email: existingUser.email,
+                name: existingUser.name,
+                token
+            });
+        }
+        catch(error) {
+            throw new InternalServerErrorException("Something went wrong");
+        }
     }
 }
