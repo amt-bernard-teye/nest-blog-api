@@ -89,7 +89,7 @@ export class UserRepository extends BaseRepository<User, UserProp> implements IS
                     {id: entityId}
                 ]
             },
-            select: this.selectProps()
+            select: {...this.selectProps(), password: true}
         });
 
         await this.close();
