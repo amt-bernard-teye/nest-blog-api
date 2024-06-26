@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <main class="main">
+        <aside class="main__aside"></aside>
+        <section class="main__content">
+            <div class="main__actual">
+                <h1>Dear <%= name %>,</h1>
+                <p>
+                    We are happy to have you be part of the family of great content readers.
+                </p>
+                <p>
+                    In order to complete your registration process, we will like you to verify your email my clicking on the provided button below. The provide token to this link will expire after <strong>3 hours</strong>
+                </p>
+                <a href="http://localhost:4200/email-confirmation?token=<%= token %>" class="main__btn" target="_blank">Confirm Now</a>
+                <p>
+                    After confirming your email, the following are the list of things you can do on the site, read post, provide your view point on every post read, add authors as favorite so as you don't miss out on any new content and an ability to become a blogger too. 
+                </p>
+                <p>
+                    In case you didn't initiate this process we advice that you ignore this message thank you
+                </p>
+                <small>BerBlog Team</small><br>
+                <small>&copy; BerBlog 2024 | All rights reserved</small>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
