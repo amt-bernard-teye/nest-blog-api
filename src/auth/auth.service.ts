@@ -24,24 +24,9 @@ export class AuthService {
             throw new BadRequestException("Email already exist");
         }
 
-        const salt = await bcryptjs.genSalt(10);
-        const hashedPassword = await bcryptjs.hash(userToRegister.password, salt);
-
         try {
-            const registeredUser = await this.userRepo.add({
-                role: Role.READER,
-                name: userToRegister.name,
-                email: userToRegister.email,
-                accountStatus: AccountStatus.PENDING,
-                password: hashedPassword
-            });
-    
-            const tokenExpiration = "3h";
-            const secretKey = this.configService.get("SECRET_KEY");
-            const token = this.jwtService.sign({
-                sub: registeredUser.id,
-                email: registeredUser.email
-            }, {expiresIn: tokenExpiration, secret: secretKey}); 
+            const registeredUser = await this.registerUser(userToRegister);
+            const token = this.createVerificationToken(registeredUser.id, registeredUser.email);
     
             await this.registerAccService.sendMail({
                 email: registeredUser.email,
@@ -50,8 +35,29 @@ export class AuthService {
             });
         }
         catch(error) {
-            console.log(error);
             throw new InternalServerErrorException("Something went wrong");
         }
+    }
+
+    private async registerUser(userToRegister: RegisteringUser) {
+        const salt = await bcryptjs.genSalt(10);
+        const hashedPassword = await bcryptjs.hash(userToRegister.password, salt);
+
+        return await this.userRepo.add({
+            role: Role.READER,
+            name: userToRegister.name,
+            email: userToRegister.email,
+            accountStatus: AccountStatus.PENDING,
+            password: hashedPassword
+        });
+    }
+
+    private createVerificationToken(id: string, email: string) {
+        const tokenExpiration = "3h";
+        const secretKey = this.configService.get("SECRET_KEY");
+        return this.jwtService.sign({
+            sub: id,
+            email: email
+        }, {expiresIn: tokenExpiration, secret: secretKey}); 
     }
 }
