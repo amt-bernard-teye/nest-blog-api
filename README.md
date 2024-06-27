@@ -2,7 +2,7 @@
 
 This project is a blog site with the following features
 - Support for three users namely: admin, blogger and reader
-- Basically all three readers can interact on the platform by logging into their created accounts
+- Basically all three users can interact on the platform by logging into their created accounts
 
 ### Reader features are as follows
 - Create account, login, update profile image and manage profile
