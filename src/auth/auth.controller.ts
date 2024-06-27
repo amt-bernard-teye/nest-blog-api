@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Post, Query, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Query, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { MessageOnlyInterceptor } from 'src/shared/interceptors/message-only.interceptor';
@@ -14,6 +14,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { swaggerForgotPasswordBadRequest, swaggerForgotPasswordSuccess } from './swagger/forgot-password.swagger';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { swaggerResetPasswordSuccess } from './swagger/reset-password.swagger';
+import { swaggerCheckEmailBadRequest, swaggerCheckEmailSuccess } from './swagger/check-email.swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -71,5 +72,20 @@ export class AuthController {
 
         await this.authService.resetPassword(token, body.password);
         return "Password changed, move to the login page to login";
+    }
+
+    @Get("check-email")
+    @UseInterceptors(MessageOnlyInterceptor)
+    @ApiTags("Auth")
+    @ApiResponse(swaggerCheckEmailSuccess)
+    @ApiResponse(swaggerCheckEmailBadRequest)
+    @ApiResponse(swaggerInternalError)
+    async checkIfEmailExist(@Query("email") email: string) {
+        if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+            throw new BadRequestException("Invalid email address");
+        }
+
+        await this.authService.checkIfEmailExist(email);
+        return "Free to use";
     }
 }
