@@ -1,16 +1,20 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 
 import { UserRepository } from "src/database/repository/user.repository";
+import { UserRoles } from "../decorators/user-roles.decorator";
+import { Role } from "@prisma/client";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
     constructor(
         private configService: ConfigService,
         private jwtService: JwtService,
-        private userRepo: UserRepository
+        private userRepo: UserRepository,
+        private reflector: Reflector
     ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -28,14 +32,20 @@ export class AuthGuard implements CanActivate {
             const existingUser = await this.userRepo.find(result.sub);
 
             if (!existingUser) {
-                throw new Error("User not found");
+                throw new Error();
+            }
+
+            const roles = this.reflector.getAllAndOverride<Role[]>(UserRoles, [context.getClass(), context.getHandler()]);
+            
+            if (!roles.includes(existingUser.role)) {
+                throw new Error();
             }
 
             request["user"] = existingUser;
             return true;
         }
         catch(error) {
-            throw new UnauthorizedException(error.message);
+            throw new UnauthorizedException("Access denied");
         }
     }
 }
