@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, Query, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpCode, Post, Query, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { MessageOnlyInterceptor } from 'src/shared/interceptors/message-only.interceptor';
@@ -38,6 +38,7 @@ export class AuthController {
     }
 
     @Post("login")
+    @HttpCode(200)
     @ResponseMessage("Access granted")
     @UseInterceptors(DataMessageInterceptor)
     @ApiResponse(swaggerLoginSuccess)
@@ -49,6 +50,7 @@ export class AuthController {
     }
 
     @Post("forgot-password")
+    @HttpCode(200)
     @UseInterceptors(MessageOnlyInterceptor)
     @ApiTags("Auth")
     @ApiResponse(swaggerForgotPasswordSuccess)
@@ -59,8 +61,9 @@ export class AuthController {
         return "Check your email to complete your password reset process";
     }
 
-    @UseInterceptors(MessageOnlyInterceptor)
     @Post("reset-password")
+    @HttpCode(200)
+    @UseInterceptors(MessageOnlyInterceptor)
     @ApiTags("Auth")
     @ApiResponse(swaggerResetPasswordSuccess)
     @ApiResponse(swaggerForgotPasswordBadRequest)
