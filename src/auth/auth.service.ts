@@ -147,4 +147,21 @@ export class AuthService {
             throw new InternalServerErrorException("Something went wrong");
         }
     }
+
+    async checkIfEmailExist(email: string) {
+        try {
+            const existingUser = await this.userRepo.find(email);
+
+            if (existingUser) {
+                throw new BadRequestException("Email already exist");
+            }
+        }
+        catch(error) {
+            if (error instanceof BadRequestException) {
+                throw new BadRequestException(error.message);
+            }
+
+            throw new InternalServerErrorException("Something went wrong");
+        }
+    }
 }
