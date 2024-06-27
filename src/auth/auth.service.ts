@@ -82,7 +82,6 @@ export class AuthService {
             return { token, user }; 
         }
         catch(error) {
-            console.log(error);
             if (error instanceof BadRequestException) {
                 throw new BadRequestException(error.message);
             }
