@@ -71,8 +71,9 @@ export class AuthService {
             const existingUser = await this.userRepo.find(email);
             const hashedPassword = existingUser ? existingUser.password : "";
             const samePassword = await bcryptjs.compare(pass, hashedPassword);
+            const isVerified = existingUser ? existingUser.accountStatus === AccountStatus.ACTIVE : false;
     
-            if (!existingUser || !samePassword) {
+            if (!existingUser || !samePassword || !isVerified) {
                 throw new BadRequestException("Invalid login credentials");
             }
 
@@ -176,6 +177,7 @@ export class AuthService {
             }
 
             exitingUser.accountStatus = AccountStatus.ACTIVE;
+            await this.userRepo.update(exitingUser);
             const token = this.createLoginToken(exitingUser);
             const {password, id, ...user} = exitingUser;
 
