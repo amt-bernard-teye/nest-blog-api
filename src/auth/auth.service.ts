@@ -163,4 +163,29 @@ export class AuthService {
             throw new InternalServerErrorException("Something went wrong");
         }
     }
+
+    async verifyEmail(providedToken: string) {
+        try {
+            const secretKey = this.configService.get("SECRET_KEY");
+            const result = <{sub: string, exp: number, iat: number, email: string}>this.jwtService.verify(providedToken, {secret: secretKey});
+
+            const exitingUser = await this.userRepo.find(result.sub);
+
+            if (!exitingUser || exitingUser.email !== result.email) {
+                throw new BadRequestException("Invalid user details");
+            }
+
+            exitingUser.accountStatus = AccountStatus.ACTIVE;
+            const token = this.createLoginToken(exitingUser);
+            const {password, id, ...user} = exitingUser;
+
+            return {user, token};
+        }
+        catch(error) {
+            if (error instanceof BadRequestException) {
+                throw new BadRequestException(error.message);
+            }
+            throw new InternalServerErrorException("Something went wrong");
+        }
+    }
 }

@@ -37,6 +37,14 @@ export class AuthController {
         return "Check your email inbox to complete your registration process";
     }
 
+    @Get("confirm-verification")
+    @UseInterceptors(DataMessageInterceptor)
+    @ResponseMessage("Your account is verified")
+    @ApiTags("Auth")
+    async confirmEmail(@Query("token") token: string) {
+        return await this.authService.verifyEmail(token);
+    }
+
     @Post("login")
     @HttpCode(200)
     @ResponseMessage("Access granted")
