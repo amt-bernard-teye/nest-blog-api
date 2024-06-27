@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaClient, Role } from "@prisma/client";
+import { AccountStatus, PrismaClient, Role } from "@prisma/client";
 
 import { BaseRepository } from "./base.repository";
 import { User, UserProp } from "src/shared/interface/user.interface";
@@ -96,5 +96,20 @@ export class UserRepository extends BaseRepository<User, UserProp> implements IS
 
         await this.close();
         return updatedUser;
+    }
+
+    async delete(id: string | number): Promise<void> {
+        const prisma = this.open();
+
+        await prisma.user.update({
+            where: {
+                id: id.toString()
+            },
+            data: {
+                accountStatus: AccountStatus.SUSPENDED
+            }
+        });
+
+        await this.close();
     }
 }
