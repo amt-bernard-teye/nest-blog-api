@@ -1,10 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { BaseRepository } from "./base.repository";
 import { Category, CategoryProp } from "src/shared/interface/category.interface";
-import { Status } from "@prisma/client";
+import { Prisma, Status } from "@prisma/client";
+import { ISingleFinder } from "../interface/single-finder.interface";
+import { IMultipleFinder } from "../interface/multiple-finder.interface";
 
 @Injectable()
-export class CategoryRespository extends BaseRepository<Category, CategoryProp> {
+export class CategoryRespository extends BaseRepository<Category, CategoryProp> implements ISingleFinder<number | string, Category>, IMultipleFinder<Category> {
     selectProps(): CategoryProp {
         return {
             id: true,
@@ -59,4 +61,68 @@ export class CategoryRespository extends BaseRepository<Category, CategoryProp> 
         await this.close();
     }
 
+    async find (value: number | string): Promise<Category> {
+        const prisma = this.open();
+
+        const category = await prisma.category.findFirst({
+            where: {
+                OR: [
+                    {id: +value},
+                    {name: value.toString()}
+                ],
+                status: Status.ACTIVE
+            },
+            select: this.selectProps()
+        });
+
+        await this.close();
+        return category;
+    }
+
+    async findAll(page: number, rows: number, sortBy: string): Promise<Category[]> {
+        const prisma = this.open();
+        const sort = this.createSortKind(sortBy);
+
+        const categories = await prisma.category.findMany({
+            skip: page * rows,
+            take: rows,
+            where: {
+                status: Status.ACTIVE
+            },
+            orderBy: [ sort ],
+            select: this.selectProps()
+        });
+
+        await this.close();
+        return categories;
+    }
+
+    private createSortKind(sortBy: string) {
+        const columns = ["id", "name"];
+        const column = columns.find(value => value === sortBy);
+
+        let sort = {};
+
+        if (column === "id") {
+            sort = {name: 'desc'};
+        }
+        else if (column === "name") {
+            sort = {id: 'desc'};
+        }
+
+        return sort;
+    }
+
+    async count(): Promise<number> {
+        const prisma = this.open();
+
+        const count = prisma.category.count({
+            where: {
+                status: Status.ACTIVE
+            }
+        });
+
+        await this.close();
+        return count;
+    }
 }
