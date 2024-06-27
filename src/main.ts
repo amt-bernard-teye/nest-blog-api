@@ -12,6 +12,7 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, "../", "public"));
 
   const config = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle("Blog Api")
     .setVersion("1.0.0")
     .setDescription("A simple blog api to allow users manage list of blog post")
