@@ -5,6 +5,7 @@ export interface User {
     name: string;
     email: string;
     password?: string;
+    image?: string;
     role: Role;
     accountStatus: AccountStatus;
 };
@@ -12,6 +13,7 @@ export interface User {
 export interface UserProp {
     id: boolean;
     name: boolean;
+    image: boolean;
     email: boolean;
     role: boolean;
     accountStatus: boolean;

@@ -12,6 +12,7 @@ export class UserRepository extends BaseRepository<User, UserProp> implements IS
             id: true,
             name: true,
             email: true,
+            image: true,
             accountStatus: true,
             role: true
         };
@@ -70,6 +71,7 @@ export class UserRepository extends BaseRepository<User, UserProp> implements IS
                 name: entity.name,
                 email: entity.email,
                 password: entity.password,
+                image: entity.image,
                 accountStatus: entity.accountStatus
             },
             select: this.selectProps()
