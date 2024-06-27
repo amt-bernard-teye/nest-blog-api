@@ -15,6 +15,7 @@ import { swaggerChangePasswordBadRequest, swaggerChangePasswordSuccess } from '.
 import { swaggerChangeImageBadRequest, swaggerChangeImageSuccess } from "./swagger/change-image.swagger";
 import { swaggerInternalError } from 'src/shared/swagger/internal-error.swagger';
 import { PersonalInfoDto } from './dto/personal-info.dto';
+import { swaggerPersonalInfoBadRequest, swaggerPersonalInfoSuccess } from './swagger/personal-info.swagger';
 
 @Controller('users')
 @UseGuards(AuthGuard)
@@ -64,6 +65,9 @@ export class UsersController {
     @ApiTags("Users")
     @ApiBearerAuth()
     @UseInterceptors(MessageOnlyInterceptor)
+    @ApiResponse(swaggerPersonalInfoSuccess)
+    @ApiResponse(swaggerPersonalInfoBadRequest)
+    @ApiResponse(swaggerInternalError)
     async changePersonalInfo(@Req() request: Request, @Body(ValidationPipe) body: PersonalInfoDto) {
         const existingUser = <User>request["user"];
         await this.usersService.changePersonalInfo(existingUser, body.name, body.email);
