@@ -36,4 +36,15 @@ export class UsersService {
             throw new InternalServerErrorException("Something went wrong");   
         }
     }
+
+    async changePersonalInfo(user: User, name: string, email: string) {
+        try {
+            user.name = name;
+            user.email = email;
+            await this.userRepo.update(user);
+        }
+        catch(error) {
+            throw new InternalServerErrorException("Something went wrong");
+        }
+    }
 }
