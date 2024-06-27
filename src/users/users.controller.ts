@@ -14,6 +14,7 @@ import { ResetPasswordDto } from 'src/auth/dto/reset-password.dto';
 import { swaggerChangePasswordBadRequest, swaggerChangePasswordSuccess } from './swagger/change-password.swagger';
 import { swaggerChangeImageBadRequest, swaggerChangeImageSuccess } from "./swagger/change-image.swagger";
 import { swaggerInternalError } from 'src/shared/swagger/internal-error.swagger';
+import { PersonalInfoDto } from './dto/personal-info.dto';
 
 @Controller('users')
 @UseGuards(AuthGuard)
@@ -56,5 +57,16 @@ export class UsersController {
         await this.usersService.changePassword(existingUser, body.password);
 
         return "Password changed successfully";
+    }
+
+    @Post("personal")
+    @HttpCode(200)
+    @ApiTags("Users")
+    @ApiBearerAuth()
+    @UseInterceptors(MessageOnlyInterceptor)
+    async changePersonalInfo(@Req() request: Request, @Body(ValidationPipe) body: PersonalInfoDto) {
+        const existingUser = <User>request["user"];
+        await this.usersService.changePersonalInfo(existingUser, body.name, body.email);
+        return "Changed personal info successfully";
     }
 }
