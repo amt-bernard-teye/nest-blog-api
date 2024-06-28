@@ -18,7 +18,7 @@ import { CategoriesModule } from './categories/categories.module';
     MailerModule,
     SharedModule,
     UsersModule,
-    CategoriesModule
+    CategoriesModule,
   ],
 })
 export class AppModule {}
