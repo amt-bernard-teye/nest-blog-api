@@ -10,15 +10,18 @@ import { MessageOnlyInterceptor } from 'src/shared/interceptors/message-only.int
 import { imageValidator } from 'src/shared/file-validators/image-validator';
 import { AuthGuard } from 'src/shared/guard/auth.guard';
 import { User } from 'src/shared/interface/user.interface';
-import { ResetPasswordDto } from 'src/auth/dto/reset-password.dto';
 import { swaggerChangePasswordBadRequest, swaggerChangePasswordSuccess } from './swagger/change-password.swagger';
 import { swaggerChangeImageBadRequest, swaggerChangeImageSuccess } from "./swagger/change-image.swagger";
 import { swaggerInternalError } from 'src/shared/swagger/internal-error.swagger';
 import { PersonalInfoDto } from './dto/personal-info.dto';
 import { swaggerPersonalInfoBadRequest, swaggerPersonalInfoSuccess } from './swagger/personal-info.swagger';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { UserRoles } from 'src/shared/decorators/user-roles.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('users')
 @UseGuards(AuthGuard)
+@UserRoles([Role.ADMIN, Role.READER])
 export class UsersController {
     constructor(private usersService: UsersService) {}
     
@@ -46,16 +49,17 @@ export class UsersController {
     @HttpCode(200)
     @ApiTags("Users")
     @ApiBearerAuth()
+    @UseInterceptors(MessageOnlyInterceptor)
     @ApiResponse(swaggerChangePasswordSuccess)
     @ApiResponse(swaggerChangePasswordBadRequest)
     @ApiResponse(swaggerInternalError)
-    async changePassword(@Req() request: Request, @Body(ValidationPipe) body: ResetPasswordDto) {
-        if (body.password !== body.confirmPassword) {
+    async changePassword(@Req() request: Request, @Body(ValidationPipe) body: ChangePasswordDto) {
+        if (body.newPassword !== body.confirmPassword) {
             throw new BadRequestException("Passwords do not match each other");
         }
 
         const existingUser = <User>request["user"];
-        await this.usersService.changePassword(existingUser, body.password);
+        await this.usersService.changePassword(existingUser, body.newPassword, body.currentPassword);
 
         return "Password changed successfully";
     }

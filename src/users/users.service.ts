@@ -1,6 +1,6 @@
-import { BadGatewayException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { unlink } from "fs/promises";
-import { hash, genSalt } from 'bcryptjs';
+import { hash, genSalt, compare } from 'bcryptjs';
 
 import { UserRepository } from 'src/database/repository/user.repository';
 import { User } from 'src/shared/interface/user.interface';
@@ -25,7 +25,13 @@ export class UsersService {
         }
     }
 
-    async changePassword(user: User, newPassword: string) {
+    async changePassword(user: User, newPassword: string, currentPassword: string) {
+        const samePassword = await compare(currentPassword, user.password);
+
+        if (!samePassword) {
+            throw new BadRequestException("Current password doesn't match");
+        }
+
         try {
             const salt = await genSalt(10);
             const hashedPassword = await hash(newPassword, salt);
