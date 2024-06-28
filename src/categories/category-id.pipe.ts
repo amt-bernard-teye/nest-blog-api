@@ -6,6 +6,10 @@ export class CategoryIdPipe implements PipeTransform<string, Promise<number>> {
     constructor(private categoryRepo: CategoryRespository) { }
 
     async transform(value: string, metadata: ArgumentMetadata) {
+        if (isNaN(+value)) {
+            throw new BadRequestException("Invalid value");
+        }
+
         const existingCategory = await this.categoryRepo.find(+value);
 
         if (!existingCategory) {
