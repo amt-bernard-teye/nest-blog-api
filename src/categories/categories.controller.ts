@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 
@@ -15,6 +15,8 @@ import { swaggerUpdateCategorySuccess } from './swagger/update-category.swagger'
 import { CategoryIdPipe } from './category-id.pipe';
 import { MessageOnlyInterceptor } from 'src/shared/interceptors/message-only.interceptor';
 import { swaggerRemoveCategoryBadRequest, swaggerRemoveCategorySuccess } from './swagger/delete-category.swagger';
+import { DataOnlyInterceptor } from 'src/shared/interceptors/data-only.interceptor';
+import { swaggerSearchCategorySuccess } from './swagger/search-category.swagger';
 
 @Controller('categories')
 export class CategoriesController {
@@ -79,5 +81,15 @@ export class CategoriesController {
     async delete(@Param("id", CategoryIdPipe) id: number) {
         await this.categoriesService.delete(id);
         return "Category removed successfully";
+    }
+
+    @Get("search")
+    @ApiTags("Categories")
+    @UseInterceptors(DataOnlyInterceptor)
+    @ApiResponse(swaggerInternalError)
+    @ApiResponse(swaggerSearchCategorySuccess)
+    async search(@Query("q") data: string) {
+        let categories = await this.categoriesService.search(data);
+        return categories.slice(0, 10);
     }
 }

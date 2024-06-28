@@ -54,4 +54,13 @@ export class CategoriesService {
             throw new InternalServerErrorException("Something went wrong");
         }
     }
+
+    async search(data: string) {
+        try {
+            return await this.categoryRepo.search(data);
+        }
+        catch(error) {
+            throw new InternalServerErrorException("Something went wrong");
+        }
+    }
 }
