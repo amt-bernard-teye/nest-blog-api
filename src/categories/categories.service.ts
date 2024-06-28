@@ -45,4 +45,13 @@ export class CategoriesService {
             throw new InternalServerErrorException("Something went wrong");
         }
     }
+
+    async delete(id: number) {
+        try {
+            await this.categoryRepo.delete(id);
+        }
+        catch(error) {
+            throw new InternalServerErrorException("Something went wrong");
+        }
+    }
 }

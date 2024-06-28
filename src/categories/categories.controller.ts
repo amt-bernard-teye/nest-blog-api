@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 
@@ -13,6 +13,8 @@ import { swaggerAllCategorySuccess } from './swagger/all-category.swagger';
 import { swaggerCreateAndEditCategoryBadRequest, swaggerCreateCategorySuccess } from './swagger/create-category.swagger';
 import { swaggerUpdateCategorySuccess } from './swagger/update-category.swagger';
 import { CategoryIdPipe } from './category-id.pipe';
+import { MessageOnlyInterceptor } from 'src/shared/interceptors/message-only.interceptor';
+import { swaggerRemoveCategoryBadRequest, swaggerRemoveCategorySuccess } from './swagger/delete-category.swagger';
 
 @Controller('categories')
 export class CategoriesController {
@@ -63,5 +65,19 @@ export class CategoriesController {
         @Body(ValidationPipe) body: CategoryDto
     ) {
         return await this.categoriesService.update(id, body.name);
+    }
+
+    @Delete(":id")
+    @UserRoles([Role.ADMIN])
+    @UseGuards(AuthGuard)
+    @UseInterceptors(MessageOnlyInterceptor)
+    @ApiTags("Categories")
+    @ApiBearerAuth()
+    @ApiResponse(swaggerInternalError)
+    @ApiResponse(swaggerRemoveCategorySuccess)
+    @ApiResponse(swaggerRemoveCategoryBadRequest)
+    async delete(@Param("id", CategoryIdPipe) id: number) {
+        await this.categoriesService.delete(id);
+        return "Category removed successfully";
     }
 }
