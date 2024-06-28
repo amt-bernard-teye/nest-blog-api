@@ -4,9 +4,11 @@ import { Category, CategoryProp } from "src/shared/interface/category.interface"
 import { Prisma, Status } from "@prisma/client";
 import { ISingleFinder } from "../interface/single-finder.interface";
 import { IMultipleFinder } from "../interface/multiple-finder.interface";
+import { ISearchable } from "../interface/searchable.interface";
 
 @Injectable()
-export class CategoryRespository extends BaseRepository<Category, CategoryProp> implements ISingleFinder<number | string, Category>, IMultipleFinder<Category> {
+export class CategoryRespository extends BaseRepository<Category, CategoryProp> 
+    implements ISingleFinder<number | string, Category>, IMultipleFinder<Category>, ISearchable<Category> {
     selectProps(): CategoryProp {
         return {
             id: true,
@@ -116,7 +118,7 @@ export class CategoryRespository extends BaseRepository<Category, CategoryProp> 
     async count(): Promise<number> {
         const prisma = this.open();
 
-        const count = prisma.category.count({
+        const count = await prisma.category.count({
             where: {
                 status: Status.ACTIVE
             }
@@ -124,5 +126,22 @@ export class CategoryRespository extends BaseRepository<Category, CategoryProp> 
 
         await this.close();
         return count;
+    }
+
+    async search(value: string): Promise<Category[]> {
+        const prisma = this.open();
+
+        const categories = await prisma.category.findMany({
+            where: {
+                name: { 
+                    contains: value, 
+                    mode: "insensitive" 
+                }
+            },
+            select: this.selectProps()
+        });
+
+        await this.close();
+        return categories;
     }
 }
