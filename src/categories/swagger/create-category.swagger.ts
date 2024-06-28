@@ -17,7 +17,7 @@ export const swaggerCreateCategorySuccess = {
     status: 200,        
 };
 
-export const swaggerCreateCategoryBadRequest = {
+export const swaggerCreateAndEditCategoryBadRequest = {
     description: "User Error",
     content: {
         "application/json": {
